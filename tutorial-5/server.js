@@ -1,127 +1,93 @@
-const logEvent = require("./logEvent");
+const express = require("express");
+const app = express();
 const path = require("path");
-const http = require("http");
-const fs = require("fs");
-const fsPromise = require("fs").promises;
-
-const EventEmitter = require("events");
-
-class MyEmitter extends EventEmitter {}
-
-const emitter = new MyEmitter();
+const {logger} = require("./middleware/logEvent");
 
 const PORT = process.env.PORT || 3500;
 
-const serverFile = async (filePath, contentType, response) => {
-  try {
-    const rawData = await fsPromise.readFile(
-      filePath,
-      !contentType.includes('image') ? "utf8" : ""
-    );
-    const data =
-      contentType === "application/json" ? JSON.parse(rawData) : rawData;
-    response.writeHead(filePath.includes("404.html") ? 404 : 200, {
-      "Content-Type": contentType,
-    });
-    response.end(
-      contentType === "application/json" ? JSON.stringify(data) : data
-    );
-  } catch (error) {
-    console.log(error);
-    emitter.emit("log", `${error.name}: ${error.message}`, 'errorLog.txt');
-    response.statusCode = 500;
-    response.end();
-  }
+// custom middleware
+app.use(logger);
+
+const whitelist = [
+  "http://your-site.com",
+  "https://localhost:3000",
+  "http://www.google.com",
+]
+
+const corsOptions = {
+  origin:  (origin, callback)  => {
+    if (whitelist.indexOf(origin)!== -1 || origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  optionSuccessStatus: 200
 };
 
-const server = http.createServer((req, res) => {
-  console.log(req.url, req.method);
-  emitter.emit("log", `${req.url}\t${req.method}`, 'reqLog.txt')
+app.use(cors(corsOptions));
 
-  const extension = path.extname(req.url);
+// built-in middleware, to handle url encoded data in other word --> form Data: "content-type application/x-www-form-urlencoded"
+app.use(express.urlencoded({ extended: false }));
 
-  let contentType;
+// to handle json responses
+app.use(express.json());
 
-  switch (extension) {
-    case ".css":
-      contentType = "text/css";
-      break;
-    case ".js":
-      contentType = "text/javascript";
-      break;
-    case ".json":
-      contentType = "application/json";
-      break;
-    case ".jpg":
-      contentType = "image/jpeg";
-      break;
-    case ".png":
-      contentType = "image/png";
-      break;
-    case ".txt":
-      contentType = "text/plain";
-      break;
-    default:
-      contentType = "text/html";
+//serving static files
+app.use(express.static(path.join(__dirname, "public")));
+
+app.get("^/$|/index(.html)?", (req, res) =>
+  // res.sendFile("./views/index.html", {root: __dirname})
+  res.sendFile(path.join(__dirname, "views", "index.html"))
+);
+app.get("^/$|/new-page(.html)?", (req, res) =>
+  // res.sendFile("./views/index.html", {root: __dirname})
+  res.sendFile(path.join(__dirname, "views", "new-page.html"))
+);
+
+app.get("/old-page(.html)?", (req, res) => {
+  res.redirect(301, "new-page.html");
+});
+
+app.get(
+  "/hello(.html)?",
+  (req, res, next) => {
+    console.log("You are trying to access hello.html");
+    next();
+  },
+  (req, res) => {
+    res.send("Hello Zainabuu, and Basirat!");
   }
+);
 
-  let filepath;
+const one = (req, res) => {
+  console.log("one");
+  next();
+};
+const two = (req, res) => {
+  console.log("two");
+  next();
+};
+const three = (req, res) => {
+  console.log("three");
+  next();
+  res.send("Finished!");
+};
 
-  if (contentType === "text/html" && req.url === "/") {
-    filepath = path.join(__dirname, "views", "index.html");
-  }
-  // users/users/desktop/my web/nodejs/Tutorial4/ => directory = __dirname
-  // views
-  //index.html
+app.get("/chain(.html)?", [one, two, three]);
 
-  // when ever someone inputs '/' as the url
-  // the filepath = users/users/desktop/my web/nodejs/Tutorial4/views/index.html
-  else if (contentType === "text/html" && req.url.slice(-1) === "/") {
-    filepath = path.join(__dirname, "views", req.url);
-  }
-  // users/users/desktop/my web/nodejs/Tutorial4/ => directory = __dirname
-  // views
-  // req.url when the '/' is the last character like "/old/" or "/m/"
-  //the file path = users/users/desktop/my web/nodejs/Tutorial4/views/me
-  else if (contentType === "text/html") {
-    filepath = path.join(__dirname, "views", req.url);
+app.all("*", (req, res) => {
+  res.status(404);
+  if (req.accepts("html")) {
+    res.sendFile(path.join(__dirname, "views", "404.html"));                                                                           
+  } else if (req.accepts("json")) {
+    res.json({ error: "404! Not found" });
   } else {
-    filepath = path.join(__dirname, req.url);
-  }
-
-  if (!extension && req.url.slice(-1) !== "/") filepath += ".html";
-  //the file path = users/users/desktop/my web/nodejs/Tutorial4/views/me.html or
-  //the file path = users/users/desktop/my web/nodejs/Tutorial4/views/me/
-  // for example users/users/desktop/my web/nodejs/Tutorial4/views/me add .html because
-  // there is no extension name and there is no "/" at the end
-
-  const fileExists = fs.existsSync(filepath);
-  // if a path for instance users/users/desktop/my-web/nodejs/Tutorial4/views/me.html is created
-  // it checks our computer to see if the path is in the computer
-
-  if (fileExists) {
-    serverFile(filepath, contentType, res);
-    // if the filepath  exists, then
-    // now serve the everything about that file to the client side
-  } else {
-    switch (path.parse(filepath).base) {
-      case "old-page":
-        res.writeHead(301, { Location: "/new-page.html" });
-        break;
-
-      case "www-page.html":
-        res.writeHead(301, { Location: "/" });
-        res.end();
-        break;
-
-      default:
-        serverFile(path.join(__dirname, "views", "404.html"), "text/html", res);
-    }
+    res.type("txt");
+    res.send("404! Not found");
   }
 });
 
-server.listen(PORT, () => console.log(`server running on port ${PORT}`));
 
-// emitter.on("log", (msg) => logEvent(msg))
 
-//     emitter.emit("log", "log event emitted")
+app.listen(PORT, () => console.log(`server running on port ${PORT}`));
