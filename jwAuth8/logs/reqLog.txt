@@ -84,3 +84,7 @@
 20240514	11:26:42	012b0f8e-83d0-4fb5-9a97-2f09de66e622	POST	undefined	/register
 20240514	12:16:59	8015ed7f-ec1e-45fa-81dc-2d3d9dc74e2b	POST	undefined	/auth
 20240514	12:17:52	bbc028ea-bd8d-4963-990b-b39e9bcdbf01	POST	undefined	/auth
+20240515	11:37:54	f7b8b4cd-c592-4b0f-bd52-8c5df10d33a7	POST	undefined	/auth
+20240515	11:38:54	2f7e56c1-1495-492b-b033-26900a89dbdc	POST	undefined	/auth
+20240515	11:49:02	3372ab1c-9094-4ed6-9909-314541794e2e	POST	undefined	/auth
+20240515	11:49:31	4a8ed76f-7f49-4ba7-948c-e9102e581b22	GET	undefined	/employee

@@ -1,3 +1,4 @@
+require("dotenv").config()
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -29,6 +30,7 @@ app.use("/", express.static(path.join(__dirname, "/public")));
 app.use("/", rootRoute);
 app.use('/register', require('./routes/api/register'))
 app.use('/auth', require('./routes/api/auth'))
+
 
 app.use("/employee", employeeRoute);
 
