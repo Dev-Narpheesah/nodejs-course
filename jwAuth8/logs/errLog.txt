@@ -1,0 +1,9 @@
+20240515	15:18:29	db1b8ae8-2cc5-4610-9050-93f6921c4af7	Error: ENOENT: no such file or directory, stat 'C:\Users\HP\Desktop\my-web\nodejs-course\jwAuth8\routes\views\index.html'
+20240515	15:59:42	f587c9a9-1fd9-4991-938e-b75d71ef5bd4	ReferenceError: accessToken is not defined
+20240516	09:26:24	10331507-909a-4dcb-a650-53f10dc00259	TypeError: res.sendStatu is not a function
+20240516	09:36:27	2444a650-29e5-468b-bf28-d719bd4b6017	TypeError: res.sendStatu is not a function
+20240516	09:45:58	f65e883b-ba7a-4e99-b7c5-d0652d1d8563	TypeError: res.sendStatu is not a function
+20240520	09:22:14	d1465151-dda3-4ae6-93b2-048474f57856	TypeError: authHeader?.startWith is not a function
+20240520	09:23:04	28350151-c298-4627-bbf0-5295dea52685	TypeError: authHeader?.startWith is not a function
+20240520	09:23:54	57101ee7-4ca7-44b9-9152-7dab3e1695a6	TypeError: authHeader?.startWiths is not a function
+20240520	09:24:19	6bf38969-4d74-4734-8048-0ebf569ed11f	TypeError: authHeader?.startWiths is not a function

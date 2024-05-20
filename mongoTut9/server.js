@@ -1,4 +1,3 @@
-require("dotenv").config()
 const express = require("express");
 const app = express();
 const path = require("path");
@@ -8,6 +7,7 @@ const errorHandler = require("./middleware/errorHandler");
 const rootRoute = require("./routes/root");
 const verifyJWT = require("./middleware/verifyJWT");
 const cookieParser = require("cookie-parser");
+require("dotenv").config()
 
 
 const employeeRoute = require("./routes/api/employee");
