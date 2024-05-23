@@ -42,7 +42,7 @@ const handleNewUser = async (req, res) => {
     //   "password": hashedPwd,
     // };
     // usersDB.setUsers([...usersDB.users, newUser]);
-    // await fsPromises.writeFile(
+     // await fsPromises.writeFile(
     //   path.join(__dirname, "..", "model", "users.json"),
     //   JSON.stringify(usersDB.users)
     // );
